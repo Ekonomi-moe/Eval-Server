@@ -1,0 +1,5 @@
+flask
+flask_compress
+flask_cors
+tensorflow
+tensorflow_io
