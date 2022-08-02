@@ -198,9 +198,7 @@ def get_bulk_images():
         return {"status": 500, "message": "Something Failed", "data": {"ok": ok, "ok_list": ok_list, "failed": failed, "failed_list": failed_list}}, 500
 
 @app.route('/api/ddr', methods=['GET'])
-def return_tags(): 
-    print(request.view_args)
-
+def return_tags():
     try:
         if ('id' not in request.args) and ('id' not in request.json):
             return {"status": 400, "message": "ID not found"}, 400
