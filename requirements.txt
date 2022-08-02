@@ -1,5 +1,8 @@
+https://github.com/EKonomi-moe/DeepDanbooru/releases/download/1.0.0/deepdanbooru-1.0.0-py3-none-any.whl
 flask
 flask_compress
 flask_cors
 tensorflow
 tensorflow_io
+pillow
+requests
