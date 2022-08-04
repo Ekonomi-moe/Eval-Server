@@ -28,6 +28,9 @@ class Storage():
             return False
         elif imgid in self.modules.ddr.database:
             return True
+        #elif imgid in self.modules.ddr.dbqueue:
+        #    self.modules.ddr.modules.time.sleep(0.2)
+        #    return self.check_eval_end(imgid)
         else:
             return None
 
@@ -208,9 +211,10 @@ def return_tags():
         except:
             return {"status": 400, "message": "ID not found"}, 400
     
-    if storage.check_eval_end(imgid) is None:
+    eval_status = storage.check_eval_end(imgid)
+    if eval_status is None:
         return {"status": 500, "message": "Internal server error. Cannot find id in work and database."}, 500
-    elif storage.check_eval_end(imgid) is False:
+    elif eval_status is False:
         #202 Image is still processing
         return {"status": 202, "message": "Image is still processing"}, 202
     else:
