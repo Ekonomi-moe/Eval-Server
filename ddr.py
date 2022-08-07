@@ -35,6 +35,8 @@ class DDRWEB(Exception):
         self.dbqueue = []
         work = False
         while True:
+            if (self.storage.exit) and (work == False) and (len(self.dbqueue) == 0): break
+            
             if len(self.dbqueue) != 0:
                 work = True
                 queue = self.dbqueue.pop(0)

@@ -6,11 +6,13 @@ class Storage():
     def __init__(self):
         import importlib
         import ddr
+        self.exit = False
 
 
         self.modules = dummy()
         self.modules.Thread = importlib.import_module("threading").Thread
         self.modules.base64 = importlib.import_module("base64")
+        self.modules.time = importlib.import_module("time")
         self.modules.ddr = ddr.DDRWEB(self)
         self.threads = {}
         pass
@@ -44,7 +46,7 @@ class Storage():
         return rtn
 
 
-        
+
 from flask import *
 from flask_compress import Compress
 from hashlib import sha256
@@ -214,6 +216,7 @@ def return_tags():
     eval_status = storage.check_eval_end(imgid)
     if eval_status is None:
         return {"status": 500, "message": "Internal server error. Cannot find id in work and database."}, 500
+        return {"status": 404, "message": "Id not found on work chain."}, 404
     elif eval_status is False:
         #202 Image is still processing
         return {"status": 202, "message": "Image is still processing"}, 202
@@ -264,6 +267,15 @@ def return_imglist_html():
         html += '<a href="/api/ddr_img?id=' + imgid + '" target="_blank">' + imgid + '</a><br>'
     return html
 
+@app.route('/shutdown')
+def shutdown():
+    args = request.args
+    if 'password' not in args:
+        return {"status": 400, "message": "Unknown args"}, 400
+    if args['password'] == app.secret_key:
+        storage.exit == True
+        return {"status": 200, "message": "Now shutting down"}, 200
+
 """
 POST로 이미지를 받고, id를 반환
 GET으로 id를 받고, 참/거짓 반환
@@ -292,4 +304,15 @@ GET
 
 if __name__ == '__main__':
     app.debug = True
-    app.run(host="127.0.0.1", threaded=True, port=8080, use_reloader=False)
+    #app.run(host="127.0.0.1", threaded=True, port=8080, use_reloader=False)
+    appthread = storage.modules.Thread(target=app.run, kwargs={'host': '127.0.0.1', 'port': 8080, 'threaded': True, 'use_reloader': False})
+    appthread.daemon = True
+    appthread.start()
+    try:
+        while True:
+            if storage.exit: exit()
+            storage.modules.time.sleep(1)
+    except KeyboardInterrupt:
+        exit()
+
+    
