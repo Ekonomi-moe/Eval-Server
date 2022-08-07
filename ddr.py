@@ -9,7 +9,10 @@ class DDRWEB(Exception):
         import importlib
 
         self.importlib = importlib
-        self.modules = dummy()
+        try:
+            self.modules = storage.modules
+        except:
+            self.modules = dummy()
 
         self.modules.Thread = importlib.import_module("threading").Thread
         self.modules.sha256 = importlib.import_module("hashlib").sha256
