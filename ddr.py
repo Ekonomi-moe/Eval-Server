@@ -16,7 +16,6 @@ class DDRWEB(Exception):
 
         self.modules.Thread = importlib.import_module("threading").Thread
         self.modules.sha256 = importlib.import_module("hashlib").sha256
-        self.modules.tf_io = importlib.import_module("tensorflow_io")
         self.modules.dd = importlib.import_module("deepdanbooru")
         self.modules.tf = importlib.import_module("tensorflow")
         self.modules.json = importlib.import_module("json")
@@ -127,12 +126,8 @@ class DDRWEB(Exception):
             self.data.tags.character = [tag for tag in (tag.strip() for tag in tags_stream) if tag]
 
     def eval_image(self, image, imgid: str):
-        #sha256(image).hexdigest()
         image_name = imgid + ".png"
         img_path = self.imagePath / image_name
-        #f = open(, "rb")
-        #image = f.read()
-        #f.close()
         width = self.data.model.input_shape[2]
         height = self.data.model.input_shape[1]
         
@@ -154,7 +149,6 @@ class DDRWEB(Exception):
         for tag in self.data.tags.all:
             if "rating:" in tag:
                 sort_rating.update({tag: result_dict[tag]})
-                #sort_rating.update({tag: result_dict[tag]})
             elif tag in self.data.tags.character:
                 sort_character.update({tag: result_dict[tag]})
             elif result_dict[tag] >= self.config.threshold:
@@ -168,9 +162,7 @@ class DDRWEB(Exception):
         sort_general = []
         for tag_gen, rate in sort_general_list:
             sort_general.append([str(tag_gen), float(rate)])
-            
 
-        #self.save_imgdata(imgid, sort_general, sort_character[0][0], sort_rating[0][0].replace("rating:", ""))
         self.dbqueue.append({imgid: {"general": sort_general, "character": sort_character[0][0], "rating": sort_rating[0][0].replace("rating:", "")}})
         
         return
