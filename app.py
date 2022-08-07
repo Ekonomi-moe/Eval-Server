@@ -268,15 +268,6 @@ def return_imglist_html():
         html += '<a href="/api/ddr_img?id=' + imgid + '" target="_blank">' + imgid + '</a><br>'
     return html
 
-@app.route('/shutdown')
-def shutdown():
-    args = request.args
-    if 'password' not in args:
-        return {"status": 400, "message": "Unknown args"}, 400
-    if args['password'] == storage.modules.base64.b64encode(storage.secret_key).decode('utf-8'):
-        storage.exit == True
-        return {"status": 200, "message": "Now shutting down"}, 200
-
 """
 POST로 이미지를 받고, id를 반환
 GET으로 id를 받고, 참/거짓 반환
