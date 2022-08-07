@@ -312,9 +312,11 @@ if __name__ == '__main__':
     appthread.start()
     try:
         while True:
-            if storage.exit: exit()
-            storage.modules.time.sleep(1)
+            command = input("> ")
+            if command == "exit":
+                storage.exit = True
+                break
     except KeyboardInterrupt:
-        exit()
+        pass
 
     
