@@ -305,7 +305,7 @@ GET
 
 if __name__ == '__main__':
     app.debug = True
-    print("Secret key:", storage.secret_key.decode())
+    print("Secret key:", storage.modules.base64.b64encode(storage.secret_key).decode('utf-8'))
     #app.run(host="127.0.0.1", threaded=True, port=8080, use_reloader=False)
     appthread = storage.modules.Thread(target=app.run, kwargs={'host': '127.0.0.1', 'port': 8080, 'threaded': True, 'use_reloader': False})
     appthread.daemon = True
