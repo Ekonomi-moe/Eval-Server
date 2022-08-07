@@ -60,7 +60,9 @@ import io
 storage = Storage()
 compress = Compress()
 app = Flask(__name__)
-app.secret_key = os.urandom(12)
+storage.secret_key = os.urandom(12)
+app.secret_key = storage.secret_key
+
 CORS(app)
 
 ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg', 'webp', 'gif']
@@ -271,7 +273,7 @@ def shutdown():
     args = request.args
     if 'password' not in args:
         return {"status": 400, "message": "Unknown args"}, 400
-    if args['password'] == app.secret_key:
+    if args['password'] == storage.secret_key:
         storage.exit == True
         return {"status": 200, "message": "Now shutting down"}, 200
 
@@ -303,6 +305,7 @@ GET
 
 if __name__ == '__main__':
     app.debug = True
+    print("Secret key:", storage.secret_key)
     #app.run(host="127.0.0.1", threaded=True, port=8080, use_reloader=False)
     appthread = storage.modules.Thread(target=app.run, kwargs={'host': '127.0.0.1', 'port': 8080, 'threaded': True, 'use_reloader': False})
     appthread.daemon = True
