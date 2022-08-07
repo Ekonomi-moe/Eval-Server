@@ -27,12 +27,12 @@ class DDRWEB(Exception):
         self.load_data()
         self.load_database()
 
+        self.dbqueue = []
         self.dbadmin = self.modules.Thread(target=self.dba)
         self.dbadmin.start()
         pass
 
     def dba(self):
-        self.dbqueue = []
         work = False
         while True:
             if (self.storage.exit) and (work == False) and (len(self.dbqueue) == 0): break
@@ -42,15 +42,15 @@ class DDRWEB(Exception):
                 queue = self.dbqueue.pop(0)
                 if list(queue.keys())[0] in self.database:
                     raise KeyError("Image already exists in database")
-                    return
                 self.database.update(queue)
+                self.storage.threads.pop(list(queue.keys())[0])
             
             if (work == True) and (len(self.dbqueue) == 0):
                 work = False
 
                 dataPath = self.workPath / "database.json"
                 f = open(dataPath, "w", encoding="utf-8")
-                self.modules.json.dump(self.database, f, ensure_ascii=False, indent=4)
+                self.modules.json.dump(self.database, f, ensure_ascii=False) #indent=4
                 f.close()
             
             if work == False: self.modules.time.sleep(1)
@@ -169,6 +169,5 @@ class DDRWEB(Exception):
 
         #self.save_imgdata(imgid, sort_general, sort_character[0][0], sort_rating[0][0].replace("rating:", ""))
         self.dbqueue.append({imgid: {"general": sort_general, "character": sort_character[0][0], "rating": sort_rating[0][0].replace("rating:", "")}})
-
-        self.storage.threads.pop(imgid)
+        
         return

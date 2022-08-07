@@ -215,7 +215,6 @@ def return_tags():
     
     eval_status = storage.check_eval_end(imgid)
     if eval_status is None:
-        return {"status": 500, "message": "Internal server error. Cannot find id in work and database."}, 500
         return {"status": 404, "message": "Id not found on work chain."}, 404
     elif eval_status is False:
         #202 Image is still processing
