@@ -63,6 +63,14 @@ CORS(app)
 
 ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg', 'webp', 'gif']
 
+@app.before_request
+def after_request():
+    if "X-Forwarded-For" in request.headers: request.remote_addr = request.headers["X-Forwarded-For"]
+
+@app.after_request
+def after_request(response):
+    return response
+
 @app.route('/api/')
 def main():
     #return 404 not found
