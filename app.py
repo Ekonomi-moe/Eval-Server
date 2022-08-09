@@ -41,9 +41,22 @@ class Storage():
         f.close()
         return rtn
 
+class RequestFormatter(logging.Formatter):
+    def format(self, record):
+        if has_request_context():
+            record.url = request.url
+            if "X-Forwarded-For" in request.headers:
+                record.remote_addr = request.headers["X-Forwarded-For"]
+            else:
+                record.remote_addr = request.remote_addr
+        else:
+            record.url = None
+            record.remote_addr = None
+
+        return super().format(record)
 
 
-from flask import *
+from flask import request, logging, has_request_context, Flask
 from flask_compress import Compress
 from hashlib import sha256
 from flask_cors import CORS
@@ -51,6 +64,7 @@ import os
 import requests
 from PIL import Image
 import io
+from logging import Formatter
 
 
 storage = Storage()
@@ -58,6 +72,8 @@ compress = Compress()
 app = Flask(__name__)
 storage.secret_key = os.urandom(12)
 app.secret_key = storage.secret_key
+formatter = RequestFormatter('%(levelname)s:: [%(asctime)s] %(remote_addr)s %(url)s :: %(message)s')
+logging.default_handler.setFormatter(formatter)
 
 CORS(app)
 
