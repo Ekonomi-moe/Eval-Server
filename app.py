@@ -65,7 +65,7 @@ ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg', 'webp', 'gif']
 
 @app.before_request
 def before_request():
-    if 'X-Forwarded-For' in request.headers: print(request.headers['X-Forwarded-For'], end="")
+    if 'X-Forwarded-For' in request.headers: print(request.headers['X-Forwarded-For'])
 
 @app.route('/api/')
 def main():
