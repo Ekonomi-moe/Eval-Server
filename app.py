@@ -8,7 +8,6 @@ class Storage():
         import ddr
         self.exit = False
 
-
         self.modules = dummy()
         self.modules.Thread = importlib.import_module("threading").Thread
         self.modules.base64 = importlib.import_module("base64")
@@ -30,9 +29,6 @@ class Storage():
             return False
         elif imgid in self.modules.ddr.database:
             return True
-        #elif imgid in self.modules.ddr.dbqueue:
-        #    self.modules.ddr.modules.time.sleep(0.2)
-        #    return self.check_eval_end(imgid)
         else:
             return None
 
