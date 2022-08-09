@@ -54,7 +54,7 @@ from PIL import Image
 import io
 from logging import Formatter
 
-class RequestFormatter(Formatter):
+class RequestFormatter(logging.Formatter):
     def format(self, record):
         if has_request_context():
             record.url = request.url
