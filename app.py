@@ -41,6 +41,19 @@ class Storage():
         f.close()
         return rtn
 
+
+
+
+from flask import request, logging, has_request_context, Flask
+from flask_compress import Compress
+from hashlib import sha256
+from flask_cors import CORS
+import os
+import requests
+from PIL import Image
+import io
+from logging import Formatter
+
 class RequestFormatter(logging.Formatter):
     def format(self, record):
         if has_request_context():
@@ -54,18 +67,6 @@ class RequestFormatter(logging.Formatter):
             record.remote_addr = None
 
         return super().format(record)
-
-
-from flask import request, logging, has_request_context, Flask
-from flask_compress import Compress
-from hashlib import sha256
-from flask_cors import CORS
-import os
-import requests
-from PIL import Image
-import io
-from logging import Formatter
-
 
 storage = Storage()
 compress = Compress()
