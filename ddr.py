@@ -54,10 +54,13 @@ class DDRWEB(Exception):
         self.database = {}
         self.database.update({"AIVersion": self.config.AIVersion})
         self.database.update({"ekonomi": self.tmp_ekonomi})
-        for image in self.imagePath.iterdir():
+        images = self.imagePath.iterdir()
+        for image in images:
             if image.suffix == ".png":
                 if image.stem == "ekonomi": continue
+                print("[{now}/{all}] {img}".format(now=lists.index(image)+1, all=len(lists), img=image.stem))
                 self.eval_image(self.modules.io.BytesIO(image.read_bytes()), image.stem)
+        print("Database update done. AI Version {ver}".format(ver=self.config.AIVersion))
         self.update = False
         pass
 
