@@ -44,7 +44,10 @@ class DDRWEB(Exception):
         # get image list from self.imagePath
         # .png
         dataPath = self.workPath / "database.json"
-        dataPath.rename(dataPath.parent / "database_old.json")
+        try:
+            dataPath.rename(dataPath.parent / "database_bef{aiver}.json".format(aiver=self.config.AIVersion))
+        except FileExistsError:
+            pass
         self.database = {}
         self.database.update({"AIVersion": self.config.AIVersion})
         self.database.update({"ekonomi": self.tmp_ekonomi})
