@@ -23,12 +23,13 @@ class DDRWEB(Exception):
         self.Path = importlib.import_module("pathlib").Path
 
         self.config = dummy()
-        self.data = dummy()        
+        self.data = dummy()   
 
         self.load_config()
         self.load_data()
         self.load_database()
 
+        self.threads = {}
         self.dbqueue = []
         self.dbadmin = self.modules.Thread(target=self.dba)
         self.dbadmin.start()
@@ -50,6 +51,7 @@ class DDRWEB(Exception):
         for image in self.imagePath.iterdir():
             if image.suffix == ".png":
                 if image.stem == "ekonomi": continue
+                self.threads.update({image.stem: ""})
                 self.eval_image(self.modules.io.BytesIO(image.read_bytes()), image.stem)
         pass
 
