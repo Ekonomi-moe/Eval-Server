@@ -37,6 +37,7 @@ class DDRWEB(Exception):
         pass
 
     def DBUpdate(self):
+        print("Updating database to AI Version {ver}...".format(ver=self.config.AIVersion))
         self.tmp_ekonomi = self.database["ekonomi"]
         # Update existing images with new ai
         # get image list from self.imagePath
@@ -53,7 +54,7 @@ class DDRWEB(Exception):
         pass
 
     def DBUpdateCheck(self):
-        if "AIVersion" not in self.database: self.dbupdate()
+        if "AIVersion" not in self.database: self.DBUpdate()
         if self.database["AIVersion"] != self.config.AIVersion: self.dbupdate()
 
     def dba(self):
