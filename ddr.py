@@ -23,21 +23,24 @@ class DDRWEB(Exception):
         self.Path = importlib.import_module("pathlib").Path
 
         self.config = dummy()
-        self.data = dummy()   
+        self.data = dummy()
+        self.update = False
 
         self.load_config()
         self.load_data()
         self.load_database()
 
-        self.threads = {}
+
         self.dbqueue = []
         self.dbadmin = self.modules.Thread(target=self.dba)
+        self.dbadmin.daemon = True
         self.dbadmin.start()
 
         self.DBUpdateCheck()
         pass
 
     def DBUpdate(self):
+        self.update = True
         print("Updating database to AI Version {ver}...".format(ver=self.config.AIVersion))
         self.tmp_ekonomi = self.database["ekonomi"]
         # Update existing images with new ai
@@ -56,6 +59,7 @@ class DDRWEB(Exception):
                 if image.stem == "ekonomi": continue
                 self.threads.update({image.stem: ""})
                 self.eval_image(self.modules.io.BytesIO(image.read_bytes()), image.stem)
+        self.update = False
         pass
 
     def DBUpdateCheck(self):
@@ -73,7 +77,8 @@ class DDRWEB(Exception):
                 if list(queue.keys())[0] in self.database:
                     raise KeyError("Image already exists in database")
                 self.database.update(queue)
-                self.storage.threads.pop(list(queue.keys())[0])
+                if self.update == False:
+                    self.storage.threads.pop(list(queue.keys())[0])
             
             if (work == True) and (len(self.dbqueue) == 0):
                 work = False
