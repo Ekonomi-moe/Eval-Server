@@ -57,7 +57,6 @@ class DDRWEB(Exception):
         for image in self.imagePath.iterdir():
             if image.suffix == ".png":
                 if image.stem == "ekonomi": continue
-                self.threads.update({image.stem: ""})
                 self.eval_image(self.modules.io.BytesIO(image.read_bytes()), image.stem)
         self.update = False
         pass
