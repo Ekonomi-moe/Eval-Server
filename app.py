@@ -12,11 +12,13 @@ class Storage():
         self.modules.Thread = importlib.import_module("threading").Thread
         self.modules.base64 = importlib.import_module("base64")
         self.modules.time = importlib.import_module("time")
+        self.modules.PIL = importlib.import_module("PIL")
+        self.modules.io = importlib.import_module("io")
         self.modules.ddr = ddr.DDRWEB(self)
         self.threads = {}
         pass
 
-    def parse_image(self, image, imgid):
+    def parse_image(self, image, imgid: str):
         if self.check_eval_end(imgid) != None:
             return
         thread = self.modules.Thread(target=self.modules.ddr.eval_image, args=(image, imgid,))
@@ -24,7 +26,7 @@ class Storage():
         self.threads.update({imgid: thread})
         pass
 
-    def check_eval_end(self, imgid):
+    def check_eval_end(self, imgid: str):
         if imgid in self.threads:
             return False
         elif imgid in self.modules.ddr.database:
@@ -32,7 +34,7 @@ class Storage():
         else:
             return None
 
-    def get_eval_result(self, imgid):
+    def get_eval_result(self, imgid: str):
         return self.modules.ddr.database[imgid]
     
     def get_image(self, imgid):
@@ -49,7 +51,6 @@ from hashlib import sha256
 from flask_cors import CORS
 import os
 import requests
-from PIL import Image
 import io
 
 
@@ -110,7 +111,7 @@ def get_images():
     
     # not check capital letter
     # check allwd extension
-    timg = Image.open(io.BytesIO(image_binary))
+    timg = storage.modules.PIL.Image.open(io.BytesIO(image_binary))
     timg.save(storage.modules.ddr.imagePath / (imgid + ".png"), "PNG")
     storage.parse_image(io.BytesIO(image_binary), imgid)
     return {"status": 200, "message": "OK", "data": {"id": imgid}}, 200
@@ -143,7 +144,7 @@ def get_bulk_images():
             image_binary = image.read()
             imgid = sha256(image_binary).hexdigest()
             try:
-                timg = Image.open(io.BytesIO(image_binary))
+                timg = storage.modules.PIL.Image.open(io.BytesIO(image_binary))
                 timg.save(storage.modules.ddr.imagePath / (imgid + ".png"), "PNG")
                 storage.parse_image(io.BytesIO(image_binary), imgid)
                 ok_list.append(imgid)
@@ -158,7 +159,7 @@ def get_bulk_images():
                 image_binary = storage.modules.base64.b64decode(image_base64)
                 imgid = sha256(image_binary).hexdigest()
                 try:
-                    timg = Image.open(io.BytesIO(image_binary))
+                    timg = storage.modules.PIL.Image.open(io.BytesIO(image_binary))
                     timg.save(storage.modules.ddr.imagePath / (imgid + ".png"), "PNG")
                     storage.parse_image(io.BytesIO(image_binary), imgid)
                     ok_list.append(imgid)
@@ -177,7 +178,7 @@ def get_bulk_images():
                 image_binary = rtn.content
                 imgid = sha256(image_binary).hexdigest()
                 try:
-                    timg = Image.open(io.BytesIO(image_binary))
+                    timg = storage.modules.PIL.Image.open(io.BytesIO(image_binary))
                     timg.save(storage.modules.ddr.imagePath / (imgid + ".png"), "PNG")
                     storage.parse_image(io.BytesIO(image_binary), imgid)
                     ok_list.append(imgid)
@@ -189,7 +190,7 @@ def get_bulk_images():
             image_binary = request.json["file"]["data"]
             imgid = sha256(image_binary).hexdigest()
             try:
-                timg = Image.open(io.BytesIO(image_binary))
+                timg = storage.modules.PIL.Image.open(io.BytesIO(image_binary))
                 timg.save(storage.modules.ddr.imagePath / (imgid + ".png"), "PNG")
                 storage.parse_image(io.BytesIO(image_binary), imgid)
                 ok_list.append(imgid)

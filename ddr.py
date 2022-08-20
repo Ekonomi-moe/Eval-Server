@@ -32,7 +32,28 @@ class DDRWEB(Exception):
         self.dbqueue = []
         self.dbadmin = self.modules.Thread(target=self.dba)
         self.dbadmin.start()
+
+        self.DBUpdateCheck()
         pass
+
+    def DBUpdate(self):
+        self.tmp_ekonomi = self.database["ekonomi"]
+        # Update existing images with new ai
+        # get image list from self.imagePath
+        # .png
+        dataPath = self.workPath / "database.json"
+        dataPath.rename(dataPath.parent / "database_old.json")
+        self.database = {}
+        self.database.update({"AIVersion": self.config.AIVersion})
+        for image in self.imagePath.iterdir():
+            if image.suffix == ".png":
+                if image.stem == "ekonomi": continue
+                self.eval_image(self.modules.io.BytesIO(image.read_bytes()), image.stem)
+        pass
+
+    def DBUpdateCheck(self):
+        if "AIVersion" not in self.database: self.dbupdate()
+        if self.database["AIVersion"] != self.config.AIVersion: self.dbupdate()
 
     def dba(self):
         work = False
@@ -71,6 +92,7 @@ class DDRWEB(Exception):
         self.config.tag_character_path = self.Path(config["tag_character_path"])
         self.config.work_path = self.Path(config["work_path"])
         self.config.threshold = config["threshold"]
+        self.config.AIVersion = config["AIVersion"]
 
         self.check_config()
     
