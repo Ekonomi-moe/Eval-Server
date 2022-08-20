@@ -45,6 +45,7 @@ class DDRWEB(Exception):
         dataPath.rename(dataPath.parent / "database_old.json")
         self.database = {}
         self.database.update({"AIVersion": self.config.AIVersion})
+        self.database.update({"ekonomi": self.tmp_ekonomi})
         for image in self.imagePath.iterdir():
             if image.suffix == ".png":
                 if image.stem == "ekonomi": continue
