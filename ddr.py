@@ -54,7 +54,7 @@ class DDRWEB(Exception):
         self.database = {}
         self.database.update({"AIVersion": self.config.AIVersion})
         self.database.update({"ekonomi": self.tmp_ekonomi})
-        images = self.imagePath.iterdir()
+        images = list(self.imagePath.iterdir())
         for image in images:
             if image.suffix == ".png":
                 if image.stem == "ekonomi": continue
