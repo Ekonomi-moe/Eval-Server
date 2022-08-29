@@ -25,6 +25,7 @@ class DDRWEB(Exception):
         self.config = dummy()
         self.data = dummy()
         self.update = False
+        self.new = None
 
         self.load_config()
         self.load_data()
@@ -36,7 +37,7 @@ class DDRWEB(Exception):
         self.dbadmin.daemon = True
         self.dbadmin.start()
 
-        self.DBUpdateCheck()
+        if self.new == False: self.DBUpdateCheck()
         pass
 
     def DBUpdate(self):
@@ -132,10 +133,12 @@ class DDRWEB(Exception):
     def load_database(self):
         dataPath = self.workPath / "database.json"
         if dataPath.exists():
+            self.new = False
             f = open(dataPath, "r", encoding="utf-8")
             self.database = self.modules.json.load(f)
             f.close()
         else:
+            self.new = True
             f = open(dataPath, "w", encoding="utf-8")
             f.write("{}")
             f.close()
