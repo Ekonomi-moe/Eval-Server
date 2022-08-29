@@ -66,7 +66,7 @@ class DDRWEB(Exception):
 
     def DBUpdateCheck(self):
         if "AIVersion" not in self.database: self.DBUpdate()
-        if self.database["AIVersion"] != self.config.AIVersion: self.dbupdate()
+        if self.database["AIVersion"] != self.config.AIVersion: self.DBUpdate()
 
     def dba(self):
         work = False
