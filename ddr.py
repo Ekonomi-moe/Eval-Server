@@ -58,7 +58,7 @@ class DDRWEB(Exception):
         for image in images:
             if image.suffix == ".png":
                 if image.stem == "ekonomi": continue
-                print("[{now}/{all}] {img}".format(now=lists.index(image)+1, all=len(lists), img=image.stem))
+                print("[{now}/{all}] {img}".format(now=images.index(image)+1, all=len(images), img=image.stem))
                 self.eval_image(self.modules.io.BytesIO(image.read_bytes()), image.stem)
         print("Database update done. AI Version {ver}".format(ver=self.config.AIVersion))
         self.update = False
