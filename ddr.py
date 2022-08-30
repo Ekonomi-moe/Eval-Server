@@ -5,6 +5,7 @@ class dummy():
 class DDRWEB(Exception):
     def __init__(self, storage):
         self.storage = storage
+        self.ekonomi = {"general": [["ekonomi",1],["mascot",1],["solo",1],["no_background",1],["smile",1],["helloyunho",1],["Roul_",1],["this_is_just_a_joke",1]],"character": "ekonomi","rating": "safe"}
 
         import importlib
 
@@ -25,7 +26,6 @@ class DDRWEB(Exception):
         self.config = dummy()
         self.data = dummy()
         self.update = False
-        self.new = None
 
         self.load_config()
         self.load_data()
@@ -37,13 +37,12 @@ class DDRWEB(Exception):
         self.dbadmin.daemon = True
         self.dbadmin.start()
 
-        if self.new == False: self.DBUpdateCheck()
+        self.DBUpdateCheck()
         pass
 
     def DBUpdate(self):
         self.update = True
         print("Updating database to AI Version {ver}...".format(ver=self.config.AIVersion))
-        self.tmp_ekonomi = self.database["ekonomi"]
         # Update existing images with new ai
         # get image list from self.imagePath
         # .png
@@ -54,7 +53,7 @@ class DDRWEB(Exception):
             pass
         self.database = {}
         self.database.update({"AIVersion": self.config.AIVersion})
-        self.database.update({"ekonomi": self.tmp_ekonomi})
+        self.database.update({"ekonomi": self.ekonomi})
         images = list(self.imagePath.iterdir())
         for image in images:
             if image.suffix == ".png":
@@ -62,6 +61,7 @@ class DDRWEB(Exception):
                 print("[{now}/{all}] {img}".format(now=images.index(image)+1, all=len(images), img=image.stem))
                 self.eval_image(self.modules.io.BytesIO(image.read_bytes()), image.stem)
         print("Database update done. AI Version {ver}".format(ver=self.config.AIVersion))
+        while len(self.dbqueue) != 0: self.modules.time.sleep(0.5)
         self.update = False
         pass
 
@@ -133,16 +133,16 @@ class DDRWEB(Exception):
     def load_database(self):
         dataPath = self.workPath / "database.json"
         if dataPath.exists():
-            self.new = False
             f = open(dataPath, "r", encoding="utf-8")
             self.database = self.modules.json.load(f)
             f.close()
         else:
-            self.new = True
-            f = open(dataPath, "w", encoding="utf-8")
-            f.write("{}")
-            f.close()
             self.database = {}
+            self.database.update({"AIVersion": self.config.AIVersion})
+            self.database.update({"ekonomi": self.ekonomi})
+            f = open(dataPath, "w", encoding="utf-8")
+            self.modules.json.dump(self.database, f, ensure_ascii=False)
+            f.close()
 
         pass
 
