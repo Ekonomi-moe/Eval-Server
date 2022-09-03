@@ -317,6 +317,8 @@ if __name__ == '__main__':
                 break
             elif command == "secret":
                 print(storage.modules.base64.b64encode(storage.secret_key).decode('utf-8'))
+            elif command == "":
+                pass
             else:
                 try:
                     print(eval(command))
