@@ -38,10 +38,11 @@ class Storage():
         return self.modules.ddr.database[imgid]
     
     def get_image(self, imgid):
-        f = open(self.modules.ddr.imagePath / (imgid + ".png"), "rb")
-        rtn = self.modules.base64.b64encode(f.read()).decode("utf-8")
-        f.close()
-        return rtn
+        img = self.modules.ddr.imagePath / (imgid + ".png")
+        if img.exists(): 
+            return self.modules.base64.b64encode(img.read_bytes()).decode("utf-8")
+        else:
+            return None
 
 
 
@@ -253,10 +254,9 @@ def return_image():
     if storage.check_eval_end(imgid) is None:
         return {"status": 500, "message": "Internal server error. Cannot find id in work and database."}, 500
     # return raw file
-    f = open(storage.modules.ddr.imagePath / (imgid + ".png"), "rb")
-    rtn = f.read()
-    f.close()
-    return Response(rtn, mimetype="image/png")
+    img = storage.modules.ddr.imagePath / (imgid + ".png")
+    if not img.exists(): return {"status": 404, "message": "Image not found"}, 404
+    return Response(img.read_bytes(), mimetype="image/png")
 
 @app.route('/api/ddr_imglist', methods=['GET'])
 def return_imglist():
