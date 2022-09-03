@@ -6,3 +6,4 @@ tensorflow
 tensorflow_io
 pillow
 requests
+prompt_toolkit
