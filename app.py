@@ -1,3 +1,8 @@
+# replace print to prompt_toolkit
+from prompt_toolkit import print_formatted_text as print
+from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
+from prompt_toolkit import PromptSession
+
 class dummy():
     def __init__(self):
         pass
@@ -60,6 +65,8 @@ compress = Compress()
 app = Flask(__name__)
 storage.secret_key = os.urandom(12)
 app.secret_key = storage.secret_key
+session = PromptSession()
+session.auto_suggest = AutoSuggestFromHistory()
 
 CORS(app)
 
@@ -304,11 +311,27 @@ if __name__ == '__main__':
     appthread.start()
     try:
         while True:
-            command = input("> ")
+            command = session.prompt("> ")
             if command == "exit":
                 storage.exit = True
                 break
+            elif command == "secret":
+                print(storage.modules.base64.b64encode(storage.secret_key).decode('utf-8'))
+            else:
+                try:
+                    print(eval(command))
+                except KeyboardInterrupt:
+                    storage.exit = True
+                    break
+                except Exception as e:
+                    print("{error}: {message}".format(error=type(e).__name__, message=e))
     except KeyboardInterrupt:
         pass
+
+
+
+
+
+
 
     
