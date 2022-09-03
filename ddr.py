@@ -21,6 +21,7 @@ class DDRWEB(Exception):
         self.modules.tf = importlib.import_module("tensorflow")
         self.modules.json = importlib.import_module("json")
         self.modules.time = importlib.import_module("time")
+        self.modules.gc = importlib.import_module("gc")
         self.Path = importlib.import_module("pathlib").Path
 
         self.config = dummy()
@@ -38,6 +39,7 @@ class DDRWEB(Exception):
         self.dbadmin.start()
 
         self.DBUpdateCheck()
+        del(self.database["AIVersion"])
         pass
 
     def DBUpdate(self):
@@ -52,7 +54,6 @@ class DDRWEB(Exception):
         except FileExistsError:
             pass
         self.database = {}
-        self.database.update({"AIVersion": self.config.AIVersion})
         self.database.update({"ekonomi": self.ekonomi})
         images = list(self.imagePath.iterdir())
         for image in images:
@@ -86,10 +87,17 @@ class DDRWEB(Exception):
             if (work == True) and (len(self.dbqueue) == 0):
                 work = False
 
+                database = self.database
+
+                database.update({"AIVersion": self.config.AIVersion})
+
                 dataPath = self.workPath / "database.json"
                 f = open(dataPath, "w", encoding="utf-8")
-                self.modules.json.dump(self.database, f, ensure_ascii=False) #indent=4
+                self.modules.json.dump(database, f, ensure_ascii=False) #indent=4
                 f.close()
+                del(database)
+                self.modules.gc.collect()
+
             
             if work == False: self.modules.time.sleep(1)
 
