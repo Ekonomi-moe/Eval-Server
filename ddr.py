@@ -1,3 +1,5 @@
+from prompt_toolkit import print_formatted_text as print
+
 class dummy():
     def __init__(self):
         pass
@@ -40,17 +42,30 @@ class DDRWEB(Exception):
 
         self.DBUpdateCheck()
         del(self.database["AIVersion"])
+        del(self.database["APPVersion"])
+        self.update = False
         pass
 
-    def DBUpdate(self):
+    def DBUpdate(self, AIUpdate, APPUpdate):
         self.update = True
-        print("Updating database to AI Version {ver}...".format(ver=self.config.AIVersion))
-        # Update existing images with new ai
-        # get image list from self.imagePath
-        # .png
+        if APPUpdate: 
+            if "APPVersion" in self.database: APPVersionBefore = self.database["APPVersion"]
+            else: APPVersionBefore = "First"
+            print("Updating database APPVersion {befver} --> {ver}...".format(befver=APPVersionBefore, ver=self.storage.__VERSION__))
+        if AIUpdate: 
+            if "AIVersion" in self.database: AIVersionBefore = self.database["AIVersion"]
+            else: AIVersionBefore = "First"
+            print("Updating database AIVersion {befver} --> {ver}...".format(befver=AIVersionBefore, ver=self.config.AIVersion))
+
+
         dataPath = self.workPath / "database.json"
         try:
-            dataPath.rename(dataPath.parent / "database_bef{aiver}.json".format(aiver=self.config.AIVersion))
+            if AIUpdate and APPUpdate:
+                dataPath.rename(dataPath.parent / "database_bef_app_{appver}_ai_{aiver}.json".format(appver=APPVersionBefore, aiver=AIVersionBefore))
+            elif AIUpdate:
+                dataPath.rename(dataPath.parent / "database_bef_ai_{aiver}.json".format(aiver=AIVersionBefore))
+            elif APPUpdate:
+                dataPath.rename(dataPath.parent / "database_bef_app_{appver}.json".format(appver=APPVersionBefore))
         except FileExistsError:
             pass
         self.database = {}
@@ -61,14 +76,23 @@ class DDRWEB(Exception):
                 if image.stem == "ekonomi": continue
                 print("[{now}/{all}] {img}".format(now=images.index(image)+1, all=len(images), img=image.stem))
                 self.eval_image(self.modules.io.BytesIO(image.read_bytes()), image.stem)
-        print("Database update done. AI Version {ver}".format(ver=self.config.AIVersion))
+        if AIUpdate: print("Database update done. AI Version {ver}".format(ver=self.config.AIVersion))
+        if APPUpdate: print("Database update done. APP Version {ver}".format(ver=self.storage.__VERSION__))
         while len(self.dbqueue) != 0: self.modules.time.sleep(0.5)
-        self.update = False
         pass
 
     def DBUpdateCheck(self):
-        if "AIVersion" not in self.database: self.DBUpdate()
-        if self.database["AIVersion"] != self.config.AIVersion: self.DBUpdate()
+        AIVersion = False
+        APPVersion = False
+        if "AIVersion" not in self.database: AIVersion = True
+        if self.database["AIVersion"] != self.config.AIVersion: AIVersion = True
+        #if "APPVersion" not in self.database: APPVersion = True
+        if self.database["APPVersion"] != self.storage.__VERSION__:
+            APPVersionBefore = self.database["APPVersion"].split(".")
+            APPVersionAfter = self.storage.__VERSION__.split(".")
+            if APPVersionBefore[0] != APPVersionAfter[0] or APPVersionBefore[1] != APPVersionAfter[1]: APPVersion = True
+        
+        if AIVersion or APPVersion: self.DBUpdate(AIVersion, APPVersion)
 
     def dba(self):
         work = False
@@ -90,6 +114,7 @@ class DDRWEB(Exception):
                 database = self.database
 
                 database.update({"AIVersion": self.config.AIVersion})
+                database.update({"APPVersion": self.storage.__VERSION__})
 
                 dataPath = self.workPath / "database.json"
                 f = open(dataPath, "w", encoding="utf-8")
@@ -147,6 +172,7 @@ class DDRWEB(Exception):
         else:
             self.database = {}
             self.database.update({"AIVersion": self.config.AIVersion})
+            self.database.update({"APPVersion": self.storage.__VERSION__})
             self.database.update({"ekonomi": self.ekonomi})
             f = open(dataPath, "w", encoding="utf-8")
             self.modules.json.dump(self.database, f, ensure_ascii=False)

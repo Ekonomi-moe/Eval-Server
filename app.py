@@ -1,4 +1,5 @@
-# replace print to prompt_toolkit
+__VERSION__ = "1.0.0"
+
 from prompt_toolkit import print_formatted_text as print
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from prompt_toolkit import PromptSession
@@ -12,6 +13,7 @@ class Storage():
         import importlib
         import ddr
         self.exit = False
+        self.__VERSION__ = __VERSION__
 
         self.modules = dummy()
         self.modules.Thread = importlib.import_module("threading").Thread

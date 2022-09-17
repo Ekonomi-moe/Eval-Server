@@ -5,5 +5,6 @@
     "tag_character_path": "",
     "work_path": "",
     "threshold": 0.3,
-    "AIVersion": "20220819"
+    "AIVersion": "20220819",
+    "APPVersion": "1.0.0"
 }
