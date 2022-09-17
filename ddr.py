@@ -85,9 +85,9 @@ class DDRWEB(Exception):
         AIVersion = False
         APPVersion = False
         if "AIVersion" not in self.database: AIVersion = True
-        if self.database["AIVersion"] != self.config.AIVersion: AIVersion = True
-        #if "APPVersion" not in self.database: APPVersion = True
-        if self.database["APPVersion"] != self.storage.__VERSION__:
+        elif self.database["AIVersion"] != self.config.AIVersion: AIVersion = True
+        if "APPVersion" not in self.database: APPVersion = False
+        elif self.database["APPVersion"] != self.storage.__VERSION__:
             APPVersionBefore = self.database["APPVersion"].split(".")
             APPVersionAfter = self.storage.__VERSION__.split(".")
             if APPVersionBefore[0] != APPVersionAfter[0] or APPVersionBefore[1] != APPVersionAfter[1]: APPVersion = True
