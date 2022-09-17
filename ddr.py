@@ -40,10 +40,10 @@ class DDRWEB(Exception):
         self.dbadmin.daemon = True
         self.dbadmin.start()
 
-        self.DBUpdateCheck()
-        del(self.database["AIVersion"])
-        del(self.database["APPVersion"])
-        self.update = False
+        rtn = self.DBUpdateCheck()
+        if not rtn:
+            del(self.database["AIVersion"])
+            del(self.database["APPVersion"])
         pass
 
     def DBUpdate(self, AIUpdate, APPUpdate):
@@ -79,6 +79,7 @@ class DDRWEB(Exception):
         if AIUpdate: print("Database update done. AI Version {ver}".format(ver=self.config.AIVersion))
         if APPUpdate: print("Database update done. APP Version {ver}".format(ver=self.storage.__VERSION__))
         while len(self.dbqueue) != 0: self.modules.time.sleep(0.5)
+        self.update = False
         pass
 
     def DBUpdateCheck(self):
@@ -92,7 +93,10 @@ class DDRWEB(Exception):
             APPVersionAfter = self.storage.__VERSION__.split(".")
             if APPVersionBefore[0] != APPVersionAfter[0] or APPVersionBefore[1] != APPVersionAfter[1]: APPVersion = True
         
-        if AIVersion or APPVersion: self.DBUpdate(AIVersion, APPVersion)
+        if AIVersion or APPVersion: 
+            self.DBUpdate(AIVersion, APPVersion)
+            return True
+        else: return False
 
     def dba(self):
         work = False
