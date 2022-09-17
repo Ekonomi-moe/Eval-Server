@@ -239,6 +239,6 @@ class DDRWEB(Exception):
         sort_general = []
         for tag_gen, rate in sort_general_list: sort_general.append([str(tag_gen), float(rate)])
 
-        self.dbqueue.append({imgid: {"general": sort_general, "character": [sort_character[0][0], sort_character[0][1]], "rating": [sort_rating[0][0], sort_rating[0][1]]}})
+        self.dbqueue.append({imgid: {"general": sort_general, "character": [str(sort_character[0][0]), float(sort_character[0][1])], "rating": [str(sort_rating[0][0]), float(sort_rating[0][1])], "image": str(img_path)}})
         
         return
