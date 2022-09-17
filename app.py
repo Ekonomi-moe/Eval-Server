@@ -297,9 +297,11 @@ GET
     "status": 200,
     "message": "OK",
     "data": {
-        "general": [["girl", 0.5], ["catear", 0.3]],
-        "character": "kaffu_chino",
-        "rating": "safe"
+        "id": "SHA256",
+        "image": "base64",
+        "general": [["girl", 0.5], ["catear", 0.3]], // Multiple tags
+        "character": ["kaffu_chino", 0.5], // One tag
+        "rating": ["safe", 0.1] // One tag
     }
 }
 """
