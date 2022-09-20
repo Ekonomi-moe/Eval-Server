@@ -7,7 +7,7 @@ class dummy():
 class DDRWEB(Exception):
     def __init__(self, storage):
         self.storage = storage
-        self.ekonomi = {"general": [["ekonomi",1],["mascot",1],["solo",1],["no_background",1],["smile",1],["helloyunho",1],["Roul_",1],["this_is_just_a_joke",1]],"character": ["ekonomi", 1],"rating": ["safe", 1]}
+        self.ekonomi = {"general": [["ekonomi",1],["mascot",1],["solo",1],["no_background",1],["smile",1],["helloyunho",1],["Roul_",1],["this_is_just_a_joke",1]],"character": ["ekonomi", 1],"rating": "safe"}
 
         import importlib
 
