@@ -226,19 +226,21 @@ class DDRWEB(Exception):
         for tag in self.data.tags.all:
             if "rating:" in tag:
                 sort_rating.update({tag: result_dict[tag]})
-            elif tag in self.data.tags.character:
+            elif tag in self.data.tags.character and result_dict[tag] > self.config.threshold:
                 sort_character.update({tag: result_dict[tag]})
             elif result_dict[tag] >= self.config.threshold:
                 sort_general.update({tag: result_dict[tag]})
         
         sort_general_list = sorted(sort_general.items(), key=lambda x: x[1], reverse=True)
-        sort_character = sorted(sort_character.items(), key=lambda x: x[1], reverse=True)
+        sort_character_list = sorted(sort_character.items(), key=lambda x: x[1], reverse=True)
         sort_rating = sorted(sort_rating.items(), key=lambda x: x[1], reverse=True)
         #[('rating:safe', 1.5022916e-08), ('rating:explicit', 1.4161448e-08), ('rating:questionable', 1.4002417e-08)]
 
         sort_general = []
+        sort_character = []
         for tag_gen, rate in sort_general_list: sort_general.append([str(tag_gen), float(rate)])
+        for tag_char, rate in sort_character_list: sort_character.append([str(tag_char), float(rate)])
 
-        self.dbqueue.append({imgid: {"general": sort_general, "character": [str(sort_character[0][0]), float(sort_character[0][1])], "rating": sort_rating[0][0].replace("rating:", "")}})
+        self.dbqueue.append({imgid: {"general": sort_general, "character": sort_character, "rating": sort_rating[0][0].replace("rating:", "")}})
         
         return
