@@ -119,7 +119,7 @@ class DDRWEB(Exception):
             if (work == True) and (len(self.dbqueue) == 0) and self.update == False:
                 work = False
 
-                database = self.database
+                database = dict(self.database)
 
                 database.update({"AIVersion": self.config.AIVersion})
                 database.update({"APPVersion": self.storage.__VERSION__})
