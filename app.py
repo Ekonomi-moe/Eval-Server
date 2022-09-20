@@ -300,8 +300,8 @@ GET
         "id": "SHA256",
         "image": "base64",
         "general": [["girl", 0.5], ["catear", 0.3]], // Multiple tags
-        "character": ["kaffu_chino", 0.5], // One tag
-        "rating": ["safe", 0.1] // One tag
+        "character": [["rem_(re:zero)", 0.5], ["ram_(re:zero)", 0.4]], // Multiple tags
+        "rating": "safe" // One tag => safe, explicit, questionable
     }
 }
 """
