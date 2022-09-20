@@ -40,8 +40,10 @@ class DDRWEB(Exception):
         self.dbadmin.daemon = True
         self.dbadmin.start()
 
-        rtn = self.DBUpdateCheck()
-        if not rtn:
+        UpdateStatus = self.DBUpdateCheck()
+        if UpdateStatus:
+            self.update = False
+        else:
             del(self.database["AIVersion"])
             del(self.database["APPVersion"])
         pass
@@ -76,8 +78,9 @@ class DDRWEB(Exception):
                 if image.stem == "ekonomi": continue
                 print("[{now}/{all}] {img}".format(now=images.index(image)+1, all=len(images), img=image.stem))
                 self.eval_image(self.modules.io.BytesIO(image.read_bytes()), image.stem)
-        if AIUpdate: print("Database update done. AI Version {ver}".format(ver=self.config.AIVersion))
-        if APPUpdate: print("Database update done. APP Version {ver}".format(ver=self.storage.__VERSION__))
+        print("Database update done.")
+        if AIUpdate: print("AI Version: {ver}".format(ver=self.config.AIVersion))
+        if APPUpdate: print("APP Version: {ver}".format(ver=self.storage.__VERSION__))
         while len(self.dbqueue) != 0: self.modules.time.sleep(0.5)
         self.update = False
         pass
@@ -92,6 +95,7 @@ class DDRWEB(Exception):
             APPVersionBefore = self.database["APPVersion"].split(".")
             APPVersionAfter = self.storage.__VERSION__.split(".")
             if APPVersionBefore[0] != APPVersionAfter[0] or APPVersionBefore[1] != APPVersionAfter[1]: APPVersion = True
+            elif "pre" in APPVersionAfter[2]: APPVersion = True
         
         if AIVersion or APPVersion: 
             self.DBUpdate(AIVersion, APPVersion)
@@ -112,7 +116,7 @@ class DDRWEB(Exception):
                 if self.update == False:
                     self.storage.threads.pop(list(queue.keys())[0])
             
-            if (work == True) and (len(self.dbqueue) == 0):
+            if (work == True) and (len(self.dbqueue) == 0) and self.update == False:
                 work = False
 
                 database = self.database
