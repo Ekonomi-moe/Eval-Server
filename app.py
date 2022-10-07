@@ -1,4 +1,4 @@
-__VERSION__ = "1.1.0-pre9"
+__VERSION__ = "1.1.0"
 
 from prompt_toolkit import print_formatted_text as print
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
@@ -347,7 +347,6 @@ GET /api/ddr
 if __name__ == '__main__':
     app.debug = True
     print("Secret key:", app.secret_key)
-    #app.run(host="127.0.0.1", threaded=True, port=8080, use_reloader=False)
     appthread = storage.modules.Thread(target=app.run, kwargs={'host': '127.0.0.1', 'port': 8080, 'threaded': True, 'use_reloader': False})
     appthread.daemon = True
     appthread.start()
