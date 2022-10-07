@@ -280,7 +280,7 @@ def return_imglist():
 def return_imglist_html():
     html = ""
     if storage.config.imgcdn != None:
-        url = '<a href="{cdnurl}/{imgid}.png" target="_blank">{imgid}</a><br>'.format(cdnurl=storage.config.imgcdn, imgid="{imgid}")
+        url = '<a href="//{cdnurl}/{imgid}.png" target="_blank">{imgid}</a><br>'.format(cdnurl=storage.config.imgcdn, imgid="{imgid}")
     else:
         url = '<a href="/api/ddr_img?id={imgid}" target="_blank">{imgid}</a><br>'
     for imgid in sorted(storage.modules.ddr.database.keys()):
