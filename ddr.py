@@ -25,6 +25,7 @@ class DDRWEB(Exception):
         self.modules.time = importlib.import_module("time")
         self.modules.gc = importlib.import_module("gc")
         self.Path = importlib.import_module("pathlib").Path
+        self.onesave = False
 
         self.config = dummy()
         self.data = dummy()
@@ -115,8 +116,9 @@ class DDRWEB(Exception):
                 if self.update == False:
                     self.storage.threads.pop(list(queue.keys())[0])
             
-            if (work == True) and (len(self.dbqueue) == 0) and self.update == False:
-                work = False
+            if (work and (len(self.dbqueue) == 0) and self.update == False) or self.onesave:
+                if self.onesave: self.onesave = False
+                if (work and (len(self.dbqueue) == 0) and self.update == False): work = False
 
                 database = dict(self.database)
 

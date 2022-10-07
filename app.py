@@ -50,6 +50,16 @@ class Storage():
             return self.modules.base64.b64encode(img.read_bytes()).decode("utf-8")
         else:
             return None
+    
+    def delete_image(self, imgid):
+        img = self.modules.ddr.imagePath / (imgid + ".png")
+        if img.exists(): 
+            img.unlink()
+            self.modules.ddr.database.pop(imgid)
+            self.modules.ddr.onesave = True
+            return True
+        else:
+            return False
 
 
 
@@ -118,9 +128,6 @@ def get_images():
             image_binary = request.json["file"]["data"]
             imgid = sha256(image_binary).hexdigest()
     
-    
-    # not check capital letter
-    # check allwd extension
     timg = storage.modules.PIL.Image.open(io.BytesIO(image_binary))
     timg.save(storage.modules.ddr.imagePath / (imgid + ".png"), "PNG")
     storage.parse_image(io.BytesIO(image_binary), imgid)
@@ -261,7 +268,7 @@ def return_image():
             return {"status": 400, "message": "ID not found"}, 400
     
     if storage.check_eval_end(imgid) is None:
-        return {"status": 500, "message": "Internal server error. Cannot find id in work and database."}, 500
+        return {"status": 500, "message": "Cannot find id in work and database."}, 500
     # return raw file
     img = storage.modules.ddr.imagePath / (imgid + ".png")
     if not img.exists(): return {"status": 404, "message": "Image not found"}, 404
@@ -277,6 +284,30 @@ def return_imglist_html():
     for imgid in sorted(storage.modules.ddr.database.keys()):
         html += '<a href="/api/ddr_img?id=' + imgid + '" target="_blank">' + imgid + '</a><br>'
     return html
+
+@app.route('/api/ddr_delete', methods=['GET'])
+def delete_image():
+    if ('key' not in request.args) or ('key' not in request.json):
+        return {"status": 400, "message": "Key not found"}, 400
+    if request.args['key'] != storage.modules.base64.b64encode(storage.secret_key).decode('utf-8'):
+        return {"status": 401, "message": "Unauthorized"}, 401
+    elif request.json['key'] != storage.modules.base64.b64encode(storage.secret_key).decode('utf-8'):
+        return {"status": 401, "message": "Unauthorized"}, 401
+
+    if ('id' not in request.args) or ('id' not in request.json):
+        return {"status": 400, "message": "ID not found"}, 400
+    try:
+        imgid = request.args['id']
+    except:
+        try:
+            imgid = request.json['id']
+        except:
+            return {"status": 400, "message": "ID not found"}, 400
+    if storage.check_eval_end(imgid) is None:
+        return {"status": 500, "message": "Cannot find id in work and database."}, 500
+
+    storage.delete_image(imgid)
+    return {"status": 200, "message": "OK"}, 200
 
 """
 POST로 이미지를 받고, id를 반환
