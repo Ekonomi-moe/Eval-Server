@@ -242,7 +242,7 @@ def return_tags():
         rtndata = {}
         
         rtndata.update(storage.get_eval_result(imgid))
-        rtndata.update({"image": storage.get_image(imgid)})
+        if storage.config.imgcdn == None: rtndata.update({"image": storage.get_image(imgid)})
         rtndata.update({"id": imgid})
         lists = []
         for i in storage.get_eval_result(imgid)["general"]:
