@@ -348,6 +348,12 @@ if __name__ == '__main__':
                 break
             elif command == "secret":
                 print(storage.modules.base64.b64encode(storage.secret_key).decode('utf-8'))
+            elif command.startswith("delete "):
+                rtn = storage.delete_image(command[7:])
+                if rtn is True:
+                    print("Deleted")
+                else:
+                    print("Error")
             elif command == "":
                 pass
             else:
