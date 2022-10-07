@@ -315,11 +315,13 @@ def delete_image():
     return {"status": 200, "message": "OK"}, 200
 
 """
-POST로 이미지를 받고, id를 반환
-GET으로 id를 받고, 참/거짓 반환
->> 참일시 이미지와 태그를 반환
+POST /api/ddr: Upload image, return id (sha256)
+GET /api/ddr: Send id with args or json, if exist return tags
+GET /api/ddr_img: Send id with args or json, if exist return image
+GET /api/ddr_imglist: Return list of id
+GET /api/ddr_imglist_html: Return list of id with html
 
-POST
+POST /api/ddr
 {
     "status": 200,
     "message": "OK",
@@ -328,7 +330,7 @@ POST
     }
 }
 
-GET
+GET /api/ddr
 {
     "status": 200,
     "message": "OK",
@@ -336,6 +338,7 @@ GET
         "general": [["girl", 0.5], ["catear", 0.3]],
         "character": "kaffu_chino",
         "rating": "safe"
+        "image": "BASE64DATA" # When imgcdn is False
     }
 }
 """
