@@ -337,7 +337,7 @@ GET /api/ddr
     "data": {
         "id": "SHA256",
         "general": [["girl", 0.5], ["catear", 0.3]], // Multiple tags
-        "character": [["rem_(re:zero)", 0.5], ["ram_(re:zero)", 0.4]], // Multiple tags
+        "character": [["rem_(re:zero)", 0.5], ["ram_(re:zero)", 0.4]], // Multiple tags, if null: []
         "rating": "safe", // One tag => safe, explicit, questionable
         "image": "BASE64DATA" # When imgcdn is False
     }
