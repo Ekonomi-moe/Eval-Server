@@ -74,8 +74,7 @@ import io
 
 storage = Storage()
 app = Flask(__name__)
-storage.secret_key = os.urandom(12)
-app.secret_key = storage.secret_key
+app.secret_key = sha256(os.urandom(32)).hexdigest()[:6]
 session = PromptSession()
 session.auto_suggest = AutoSuggestFromHistory()
 
@@ -298,7 +297,7 @@ def delete_image():
         except:
             return {"status": 400, "message": "Key not found"}, 400
 
-    if key != storage.modules.base64.b64encode(storage.secret_key).decode('utf-8'):
+    if key != app.secret_key:
         return {"status": 401, "message": "Unauthorized"}, 401
 
     try:
@@ -343,7 +342,7 @@ GET
 
 if __name__ == '__main__':
     app.debug = True
-    print("Secret key:", storage.modules.base64.b64encode(storage.secret_key).decode('utf-8'))
+    print("Secret key:", app.secret_key)
     #app.run(host="127.0.0.1", threaded=True, port=8080, use_reloader=False)
     appthread = storage.modules.Thread(target=app.run, kwargs={'host': '127.0.0.1', 'port': 8080, 'threaded': True, 'use_reloader': False})
     appthread.daemon = True
@@ -355,7 +354,7 @@ if __name__ == '__main__':
                 storage.exit = True
                 break
             elif command == "secret":
-                print(storage.modules.base64.b64encode(storage.secret_key).decode('utf-8'))
+                print(app.secret_key)
             elif command.startswith("delete "):
                 rtn = storage.delete_image(command[7:])
                 if rtn is True:
@@ -374,11 +373,3 @@ if __name__ == '__main__':
                     print("{error}: {message}".format(error=type(e).__name__, message=e))
     except KeyboardInterrupt:
         pass
-
-
-
-
-
-
-
-    
