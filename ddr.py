@@ -104,7 +104,10 @@ class DDRWEB(Exception):
         pass
 
     def eval_image_update(self, image, image_name):
-        self.eval_image(image, image_name)
+        try:
+            self.eval_image(image, image_name)
+        except Exception as e:
+            print("ERROR: {e}".format(e=e))
         del(self.work_queue_update[image_name])
         pass
 
