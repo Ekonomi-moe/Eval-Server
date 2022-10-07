@@ -290,15 +290,17 @@ def return_imglist_html():
 
 @app.route('/api/ddr_delete', methods=['GET'])
 def delete_image():
-    if ('key' not in request.args) or ('key' not in request.json):
-        return {"status": 400, "message": "Key not found"}, 400
-    if request.args['key'] != storage.modules.base64.b64encode(storage.secret_key).decode('utf-8'):
-        return {"status": 401, "message": "Unauthorized"}, 401
-    elif request.json['key'] != storage.modules.base64.b64encode(storage.secret_key).decode('utf-8'):
+    try:
+        key = request.args['key']
+    except:
+        try:
+            key = request.json['key']
+        except:
+            return {"status": 400, "message": "Key not found"}, 400
+
+    if key != storage.modules.base64.b64encode(storage.secret_key).decode('utf-8'):
         return {"status": 401, "message": "Unauthorized"}, 401
 
-    if ('id' not in request.args) or ('id' not in request.json):
-        return {"status": 400, "message": "ID not found"}, 400
     try:
         imgid = request.args['id']
     except:
@@ -306,6 +308,7 @@ def delete_image():
             imgid = request.json['id']
         except:
             return {"status": 400, "message": "ID not found"}, 400
+
     if storage.check_eval_end(imgid) is None:
         return {"status": 500, "message": "Cannot find id in work and database."}, 500
 
