@@ -14,6 +14,7 @@ class Storage():
         import ddr
         self.exit = False
         self.__VERSION__ = __VERSION__
+        self.config = None
 
         self.modules = dummy()
         self.modules.Thread = importlib.import_module("threading").Thread
@@ -279,8 +280,12 @@ def return_imglist():
 @app.route('/api/ddr_imglist_html', methods=['GET'])
 def return_imglist_html():
     html = ""
+    if storage.config.imgcdn != None:
+        url = '<a href="{cdnurl}/{imgid}.png" target="_blank">{imgid}</a>'.format(cdnurl=storage.config.imgcdn, imgid="{imgid}")
+    else:
+        url = '<a href="/api/ddr_img?id={imgid}" target="_blank">{imgid}</a><br>'
     for imgid in sorted(storage.modules.ddr.database.keys()):
-        html += '<a href="/api/ddr_img?id=' + imgid + '" target="_blank">' + imgid + '</a><br>'
+        html += url.format(imgid=imgid)
     return html
 
 @app.route('/api/ddr_delete', methods=['GET'])

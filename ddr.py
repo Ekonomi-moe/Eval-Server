@@ -32,6 +32,7 @@ class DDRWEB(Exception):
         self.update = False
 
         self.load_config()
+        self.storage.config = self.config
         self.load_data()
         self.load_database()
 
@@ -155,6 +156,10 @@ class DDRWEB(Exception):
         self.config.work_path = self.Path(config["work_path"])
         self.config.threshold = config["threshold"]
         self.config.AIVersion = config["AIVersion"]
+        if config["imgcdn"]:
+            self.config.imgcdn = self.Path(config["imgcdn_url"])
+        else:
+            self.config.imgcdn = None
 
         self.check_config()
     
