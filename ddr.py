@@ -25,12 +25,14 @@ class DDRWEB(Exception):
         self.modules.time = importlib.import_module("time")
         self.modules.gc = importlib.import_module("gc")
         self.Path = importlib.import_module("pathlib").Path
+        self.onesave = False
 
         self.config = dummy()
         self.data = dummy()
         self.update = False
 
         self.load_config()
+        self.storage.config = self.config
         self.load_data()
         self.load_database()
 
@@ -116,8 +118,9 @@ class DDRWEB(Exception):
                 if self.update == False:
                     self.storage.threads.pop(list(queue.keys())[0])
             
-            if (work == True) and (len(self.dbqueue) == 0) and self.update == False:
-                work = False
+            if (work and (len(self.dbqueue) == 0) and self.update == False) or self.onesave:
+                if self.onesave: self.onesave = False
+                if (work and (len(self.dbqueue) == 0) and self.update == False): work = False
 
                 database = dict(self.database)
 
@@ -149,6 +152,10 @@ class DDRWEB(Exception):
         self.config.work_path = self.Path(config["work_path"])
         self.config.threshold = config["threshold"]
         self.config.AIVersion = config["AIVersion"]
+        if config["imgcdn"]:
+            self.config.imgcdn = self.Path(config["imgcdn_url"])
+        else:
+            self.config.imgcdn = None
 
         self.check_config()
     

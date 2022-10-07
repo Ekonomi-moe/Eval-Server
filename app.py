@@ -14,6 +14,7 @@ class Storage():
         import ddr
         self.exit = False
         self.__VERSION__ = __VERSION__
+        self.config = None
 
         self.modules = dummy()
         self.modules.Thread = importlib.import_module("threading").Thread
@@ -50,11 +51,20 @@ class Storage():
             return self.modules.base64.b64encode(img.read_bytes()).decode("utf-8")
         else:
             return None
+    
+    def delete_image(self, imgid):
+        img = self.modules.ddr.imagePath / (imgid + ".png")
+        if img.exists(): 
+            img.unlink()
+            self.modules.ddr.database.pop(imgid)
+            self.modules.ddr.onesave = True
+            return True
+        else:
+            return False
 
 
 
 from flask import *
-from flask_compress import Compress
 from hashlib import sha256
 from flask_cors import CORS
 import os
@@ -63,10 +73,8 @@ import io
 
 
 storage = Storage()
-compress = Compress()
 app = Flask(__name__)
-storage.secret_key = os.urandom(12)
-app.secret_key = storage.secret_key
+app.secret_key = sha256(os.urandom(32)).hexdigest()[:6]
 session = PromptSession()
 session.auto_suggest = AutoSuggestFromHistory()
 
@@ -118,9 +126,6 @@ def get_images():
             image_binary = request.json["file"]["data"]
             imgid = sha256(image_binary).hexdigest()
     
-    
-    # not check capital letter
-    # check allwd extension
     timg = storage.modules.PIL.Image.open(io.BytesIO(image_binary))
     timg.save(storage.modules.ddr.imagePath / (imgid + ".png"), "PNG")
     storage.parse_image(io.BytesIO(image_binary), imgid)
@@ -237,7 +242,7 @@ def return_tags():
         rtndata = {}
         
         rtndata.update(storage.get_eval_result(imgid))
-        rtndata.update({"image": storage.get_image(imgid)})
+        if storage.config.imgcdn == None: rtndata.update({"image": storage.get_image(imgid)})
         rtndata.update({"id": imgid})
         lists = []
         for i in storage.get_eval_result(imgid)["general"]:
@@ -261,7 +266,7 @@ def return_image():
             return {"status": 400, "message": "ID not found"}, 400
     
     if storage.check_eval_end(imgid) is None:
-        return {"status": 500, "message": "Internal server error. Cannot find id in work and database."}, 500
+        return {"status": 500, "message": "Cannot find id in work and database."}, 500
     # return raw file
     img = storage.modules.ddr.imagePath / (imgid + ".png")
     if not img.exists(): return {"status": 404, "message": "Image not found"}, 404
@@ -274,16 +279,49 @@ def return_imglist():
 @app.route('/api/ddr_imglist_html', methods=['GET'])
 def return_imglist_html():
     html = ""
+    if storage.config.imgcdn != None:
+        url = '<a href="//{cdnurl}/{imgid}.png" target="_blank">{imgid}</a><br>'.format(cdnurl=storage.config.imgcdn, imgid="{imgid}")
+    else:
+        url = '<a href="/api/ddr_img?id={imgid}" target="_blank">{imgid}</a><br>'
     for imgid in sorted(storage.modules.ddr.database.keys()):
-        html += '<a href="/api/ddr_img?id=' + imgid + '" target="_blank">' + imgid + '</a><br>'
+        html += url.format(imgid=imgid)
     return html
 
-"""
-POST로 이미지를 받고, id를 반환
-GET으로 id를 받고, 참/거짓 반환
->> 참일시 이미지와 태그를 반환
+@app.route('/api/ddr_delete', methods=['GET'])
+def delete_image():
+    try:
+        key = request.args['key']
+    except:
+        try:
+            key = request.json['key']
+        except:
+            return {"status": 400, "message": "Key not found"}, 400
 
-POST
+    if key != app.secret_key:
+        return {"status": 401, "message": "Unauthorized"}, 401
+
+    try:
+        imgid = request.args['id']
+    except:
+        try:
+            imgid = request.json['id']
+        except:
+            return {"status": 400, "message": "ID not found"}, 400
+
+    if storage.check_eval_end(imgid) is None:
+        return {"status": 500, "message": "Cannot find id in work and database."}, 500
+
+    storage.delete_image(imgid)
+    return {"status": 200, "message": "OK"}, 200
+
+"""
+POST /api/ddr: Upload image, return id (sha256)
+GET /api/ddr: Send id with args or json, if exist return tags
+GET /api/ddr_img: Send id with args or json, if exist return image
+GET /api/ddr_imglist: Return list of id
+GET /api/ddr_imglist_html: Return list of id with html
+
+POST /api/ddr
 {
     "status": 200,
     "message": "OK",
@@ -292,23 +330,23 @@ POST
     }
 }
 
-GET
+GET /api/ddr
 {
     "status": 200,
     "message": "OK",
     "data": {
         "id": "SHA256",
-        "image": "base64",
         "general": [["girl", 0.5], ["catear", 0.3]], // Multiple tags
         "character": [["rem_(re:zero)", 0.5], ["ram_(re:zero)", 0.4]], // Multiple tags
-        "rating": "safe" // One tag => safe, explicit, questionable
+        "rating": "safe", // One tag => safe, explicit, questionable
+        "image": "BASE64DATA" # When imgcdn is False
     }
 }
 """
 
 if __name__ == '__main__':
     app.debug = True
-    print("Secret key:", storage.modules.base64.b64encode(storage.secret_key).decode('utf-8'))
+    print("Secret key:", app.secret_key)
     #app.run(host="127.0.0.1", threaded=True, port=8080, use_reloader=False)
     appthread = storage.modules.Thread(target=app.run, kwargs={'host': '127.0.0.1', 'port': 8080, 'threaded': True, 'use_reloader': False})
     appthread.daemon = True
@@ -320,7 +358,13 @@ if __name__ == '__main__':
                 storage.exit = True
                 break
             elif command == "secret":
-                print(storage.modules.base64.b64encode(storage.secret_key).decode('utf-8'))
+                print(app.secret_key)
+            elif command.startswith("delete "):
+                rtn = storage.delete_image(command[7:])
+                if rtn is True:
+                    print("Deleted")
+                else:
+                    print("Error")
             elif command == "":
                 pass
             else:
@@ -333,11 +377,3 @@ if __name__ == '__main__':
                     print("{error}: {message}".format(error=type(e).__name__, message=e))
     except KeyboardInterrupt:
         pass
-
-
-
-
-
-
-
-    
