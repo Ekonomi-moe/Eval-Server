@@ -7,5 +7,5 @@
     "threshold": 0.3,
     "AIVersion": "20220819",
     "imgcdn": false,
-    "imgcdn_url": ""
+    "imgcdn_url": "https://example.com"
 }
