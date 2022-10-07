@@ -64,7 +64,6 @@ class Storage():
 
 
 from flask import *
-from flask_compress import Compress
 from hashlib import sha256
 from flask_cors import CORS
 import os
@@ -73,7 +72,6 @@ import io
 
 
 storage = Storage()
-compress = Compress()
 app = Flask(__name__)
 storage.secret_key = os.urandom(12)
 app.secret_key = storage.secret_key
