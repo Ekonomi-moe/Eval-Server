@@ -75,16 +75,37 @@ class DDRWEB(Exception):
         self.database = {}
         self.database.update({"ekonomi": self.ekonomi})
         images = list(self.imagePath.iterdir())
+
+        self.work_queue_update = {}
+
         for image in images:
             if image.suffix == ".png":
                 if image.stem == "ekonomi": continue
                 print("[{now}/{all}] {img}".format(now=images.index(image)+1, all=len(images), img=image.stem))
-                self.eval_image(self.modules.io.BytesIO(image.read_bytes()), image.stem)
+                #self.eval_image(self.modules.io.BytesIO(image.read_bytes()), image.stem)
+                while True:
+                    if len(self.work_queue_update) < 10:
+                        ithr = self.modules.Thread(target=self.eval_image_update, args=(self.modules.io.BytesIO(image.read_bytes()), image.stem))
+                        ithr.daemon = True
+                        ithr.start()
+                        self.work_queue_update.update({image.stem: ithr})
+                        break
+                    else:
+                        self.modules.time.sleep(1)
+        while True:
+            if len(self.work_queue_update) == 0: break
+            self.modules.time.sleep(1)
+
         print("Database update done.")
         if AIUpdate: print("AI Version: {ver}".format(ver=self.config.AIVersion))
         if APPUpdate: print("APP Version: {ver}".format(ver=self.storage.__VERSION__))
         while len(self.dbqueue) != 0: self.modules.time.sleep(0.5)
         self.update = False
+        pass
+
+    def eval_image_update(self, image, image_name):
+        self.eval_image(image, image_name)
+        del(self.work_queue_update[image_name])
         pass
 
     def DBUpdateCheck(self):
