@@ -63,10 +63,10 @@ class Storage():
             return False
 
 
-import logging
-from flask import *
+from flask import Flask, request
 from hashlib import sha256
 from flask_cors import CORS
+import logging
 import os
 import requests
 import io
