@@ -1,6 +1,6 @@
 __VERSION__ = "1.1.0"
 
-from prompt_toolkit import print_formatted_text
+from prompt_toolkit import print_formatted_text, ANSI
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from prompt_toolkit import PromptSession
 print = print_formatted_text
@@ -75,7 +75,7 @@ import io
 class PromptHandler(logging.StreamHandler):
     def emit(self, record):
         msg = self.format(record)
-        print_formatted_text(msg)
+        print_formatted_text(ANSI(msg))
 
 
 storage = Storage()
