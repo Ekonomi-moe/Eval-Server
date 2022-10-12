@@ -67,6 +67,7 @@ class Storage():
 from flask import Flask, request
 from hashlib import sha256
 from flask_cors import CORS
+from werkzeug.middleware.proxy_fix import ProxyFix
 import logging
 import os
 import requests
@@ -88,12 +89,11 @@ CORS(app)
 logger = logging.getLogger("werkzeug")
 logger.handlers = [PromptHandler()]
 
+app.wsgi_app = ProxyFix(
+    app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1
+)
 
 ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg', 'webp', 'gif']
-
-@app.before_request
-def before_request():
-    if 'X-Forwarded-For' in request.headers: print(request.headers['X-Forwarded-For'])
 
 @app.route('/api/')
 def main():
