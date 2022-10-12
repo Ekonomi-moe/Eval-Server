@@ -64,7 +64,7 @@ class Storage():
             return False
 
 
-from flask import Flask, request
+from flask import Flask, request, send_file
 from hashlib import sha256
 from flask_cors import CORS
 import logging
@@ -279,7 +279,7 @@ def return_image():
     # return raw file
     img = storage.modules.ddr.imagePath / (imgid + ".png")
     if not img.exists(): return {"status": 404, "message": "Image not found"}, 404
-    return Response(img.read_bytes(), mimetype="image/png")
+    return send_file(img, mimetype='image/png')
 
 @app.route('/api/ddr_imglist', methods=['GET'])
 def return_imglist():
