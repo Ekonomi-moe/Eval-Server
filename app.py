@@ -63,7 +63,7 @@ class Storage():
             return False
 
 
-
+import logging
 from flask import *
 from hashlib import sha256
 from flask_cors import CORS
@@ -71,14 +71,22 @@ import os
 import requests
 import io
 
+class PromptHandler(logging.StreamHandler):
+    def emit(self, record):
+        msg = self.format(record)
+        print_formatted_text(msg)
+
 
 storage = Storage()
 app = Flask(__name__)
 app.secret_key = sha256(os.urandom(32)).hexdigest()[:6]
 session = PromptSession()
 session.auto_suggest = AutoSuggestFromHistory()
-
 CORS(app)
+
+logger = logging.getLogger("werkzeug")
+logger.handlers = [PromptHandler()]
+
 
 ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg', 'webp', 'gif']
 
