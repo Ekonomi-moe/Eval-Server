@@ -67,7 +67,6 @@ class Storage():
 from flask import Flask, request
 from hashlib import sha256
 from flask_cors import CORS
-from werkzeug.middleware.proxy_fix import ProxyFix
 import logging
 import os
 import requests
@@ -77,7 +76,6 @@ class PromptHandler(logging.StreamHandler):
     def emit(self, record):
         msg = self.format(record)
         print_formatted_text(ANSI(msg))
-
 
 storage = Storage()
 app = Flask(__name__)
@@ -89,9 +87,11 @@ CORS(app)
 logger = logging.getLogger("werkzeug")
 logger.handlers = [PromptHandler()]
 
-app.wsgi_app = ProxyFix(
-    app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1
-)
+if storage.config.proxy:
+    from werkzeug.middleware.proxy_fix import ProxyFix
+    app.wsgi_app = ProxyFix(
+        app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1
+    )
 
 ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg', 'webp', 'gif']
 

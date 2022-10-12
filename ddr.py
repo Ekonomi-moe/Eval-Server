@@ -176,6 +176,7 @@ class DDRWEB(Exception):
         self.config.work_path = self.Path(config["work_path"])
         self.config.threshold = config["threshold"]
         self.config.AIVersion = config["AIVersion"]
+        self.config.proxy = config["proxy"]
         if config["imgcdn"]:
             self.config.imgcdn = self.Path(config["imgcdn_url"])
         else:

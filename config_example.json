@@ -4,6 +4,7 @@
     "tag_general_path": "",
     "tag_character_path": "",
     "work_path": "",
+    "proxy": false,
     "threshold": 0.3,
     "AIVersion": "20220819",
     "imgcdn": false,
