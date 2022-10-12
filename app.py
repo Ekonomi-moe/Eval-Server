@@ -377,7 +377,7 @@ if __name__ == '__main__':
                 pass
             else:
                 try:
-                    print(eval(command))
+                    exec(command)
                 except KeyboardInterrupt:
                     storage.exit = True
                     break
