@@ -1,4 +1,4 @@
-__VERSION__ = "1.1.0"
+__VERSION__ = "1.1.1"
 
 from prompt_toolkit import print_formatted_text, ANSI
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
