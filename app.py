@@ -1,8 +1,9 @@
 __VERSION__ = "1.1.0"
 
-from prompt_toolkit import print_formatted_text as print
+from prompt_toolkit import print_formatted_text
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from prompt_toolkit import PromptSession
+print = print_formatted_text
 
 class dummy():
     def __init__(self):
