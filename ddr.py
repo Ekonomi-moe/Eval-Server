@@ -42,6 +42,12 @@ class DDRWEB(Exception):
         self.dbadmin.daemon = True
         self.dbadmin.start()
 
+        self.queue = []
+        self.working = {}
+        self.workadmin = self.modules.Thread(target=self.eval_bulk)
+        self.workadmin.daemon = True
+        self.workadmin.start()
+
         UpdateStatus = self.DBUpdateCheck()
         if UpdateStatus:
             self.update = False
@@ -177,6 +183,7 @@ class DDRWEB(Exception):
         self.config.threshold = config["threshold"]
         self.config.AIVersion = config["AIVersion"]
         self.config.proxy = config["proxy"]
+        self.config.max_threads = config["max_threads"]
         if config["imgcdn"]:
             self.config.imgcdn = self.Path(config["imgcdn_url"])
         else:
@@ -201,6 +208,7 @@ class DDRWEB(Exception):
         self.imagePath.mkdir(exist_ok=True)
 
         if self.config.threshold < 0 or self.config.threshold > 1: raise ValueError("threshold must be between 0 and 1")
+        if self.config.max_threads < 1 or self.config.max_threads > 10: self.config.max_threads = 1
         pass
 
     def load_database(self):
@@ -278,5 +286,42 @@ class DDRWEB(Exception):
         for tag_char, rate in sort_character_list: sort_character.append([str(tag_char), float(rate)])
 
         self.dbqueue.append({imgid: {"general": sort_general, "character": sort_character, "rating": sort_rating[0][0].replace("rating:", "")}})
-        
-        return
+        pass
+    
+    def insert_queue(self, image, imgid: str):
+        self.queue.append({imgid: image})
+        pass
+
+    def check_bulk(self, cont = False):
+        if self.bulkworking == True and cont == False: return
+        self.bulkworking = True
+        if len(self.working) < self.config.max_threads:
+            if len(self.queue) > 0:
+                data = self.queue.popitem()
+                r = self.modules.threading.Thread(target=self.eval_bulk_thread, args=(data[0], data[1]))
+                self.queue.update({data[0]: r})
+                r.daemon = True
+                r.start()
+        if len(self.working) < self.config.max_threads:
+            self.check_bulk(cont=True)
+        self.bulkworking = False
+
+    def eval_bulk_thread(self, imgid: str, image):
+        try:
+            self.eval_image(image, imgid)
+        except Exception as e:
+            print("ERROR!", e)
+        self.working.remove(imgid)
+        self.check_bulk()
+        pass
+
+    def eval_bulk(self):
+        while True:
+            self.check_bulk()
+            self.modules.time.sleep(0.5)
+
+    def find_working(self, imgid):
+        if imgid in self.working: return True
+        for data in self.queue:
+            if imgid in data: return True
+        return False

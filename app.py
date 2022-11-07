@@ -24,19 +24,20 @@ class Storage():
         self.modules.PIL = importlib.import_module("PIL")
         self.modules.io = importlib.import_module("io")
         self.modules.ddr = ddr.DDRWEB(self)
-        self.threads = {}
+        #self.threads = {}
         pass
 
     def parse_image(self, image, imgid: str):
         if self.check_eval_end(imgid) != None:
             return
-        thread = self.modules.Thread(target=self.modules.ddr.eval_image, args=(image, imgid,))
-        thread.start()
-        self.threads.update({imgid: thread})
+        #thread = self.modules.Thread(target=self.modules.ddr.eval_image, args=(image, imgid,))
+        #thread.start()
+        #self.threads.update({imgid: thread})
+        self.ddr.insert_queue(image, imgid)
         pass
 
     def check_eval_end(self, imgid: str):
-        if imgid in self.threads:
+        if self.ddr.find_working(imgid):
             return False
         elif imgid in self.modules.ddr.database:
             return True
