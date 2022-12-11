@@ -238,9 +238,9 @@ class DDRWEB(Exception):
         with open(self.config.tagCharacterPath, "r", encoding="utf-8") as tags_stream:
             self.data.tags.character = [tag for tag in (tag.strip() for tag in tags_stream) if tag]
 
-    def eval_image(self, image, imgid: str):
-        image_name = imgid + ".png"
-        img_path = self.imagePath / image_name
+    def eval_image(self, image, imgid: str, notsave: bool = False):
+        #image_name = imgid + ".png"
+        #img_path = self.imagePath / image_name
         width = self.data.model.input_shape[2]
         height = self.data.model.input_shape[1]
         
@@ -248,6 +248,10 @@ class DDRWEB(Exception):
         image_shape = image.shape
         image = image.reshape((1, image_shape[0], image_shape[1], image_shape[2]))
         y = self.data.model.predict(image)[0]
+
+        if notsave:
+            self.storage.threads.pop(imgid)
+            return
 
         result_dict = {}
 
