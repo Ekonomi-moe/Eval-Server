@@ -27,13 +27,13 @@ class Storage():
         #self.threads = {}
         pass
 
-    def parse_image(self, image, imgid: str):
+    def parse_image(self, image, imgid: str, notsave: bool = False):
         if self.check_eval_end(imgid) != None:
             return
-        #thread = self.modules.Thread(target=self.modules.ddr.eval_image, args=(image, imgid,))
+        #thread = self.modules.Thread(target=self.modules.ddr.eval_image, args=(image, imgid, notsave,))
         #thread.start()
         #self.threads.update({imgid: thread})
-        self.ddr.insert_queue(image, imgid)
+        self.ddr.insert_queue(image, imgid, notsave)
         pass
 
     def check_eval_end(self, imgid: str):
@@ -104,6 +104,7 @@ def main():
 @app.route('/api/ddr', methods=['POST'])
 def get_images():
     typ = ""
+    notsave = False
     try:
         if ('file' in request.files): typ = "file"
     except:
@@ -135,10 +136,13 @@ def get_images():
         elif request.json["file"]["type"] == "binary":
             image_binary = request.json["file"]["data"]
             imgid = sha256(image_binary).hexdigest()
+        if "notsave" in request.json:
+            notsave = True
     
-    timg = storage.modules.PIL.Image.open(io.BytesIO(image_binary))
-    timg.save(storage.modules.ddr.imagePath / (imgid + ".png"), "PNG")
-    storage.parse_image(io.BytesIO(image_binary), imgid)
+    if not notsave:
+        timg = storage.modules.PIL.Image.open(io.BytesIO(image_binary))
+        timg.save(storage.modules.ddr.imagePath / (imgid + ".png"), "PNG")
+    storage.parse_image(io.BytesIO(image_binary), imgid, notsave)
     return {"status": 200, "message": "OK", "data": {"id": imgid}}, 200
 
 @app.route('/api/ddr_bulk', methods=['POST'])
