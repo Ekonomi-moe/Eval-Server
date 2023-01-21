@@ -1,4 +1,4 @@
-https://github.com/Ekonomi-moe/DeepDanbooru/releases/download/1.1.2/deepdanbooru-1.1.2-py3-none-any.whl
+https://github.com/Ekonomi-moe/DeepDanbooru/releases/download/1.1.3/deepdanbooru-1.1.3-py3-none-any.whl
 flask
 flask_cors
 tensorflow
